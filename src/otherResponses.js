@@ -78,6 +78,21 @@ const updateUsers = (req, res, body) => {
 
   return respondJSONMeta(req, res, responseCode);
 };
+const deleteMovieFromUser = (req, res, query) => {
+  let responseJSON;
+  if (!query.name || !query.type || !query.title) {
+    responseJSON = {
+      message: 'Name, title, and Type are all required.',
+    };
+  } else {
+    const { title } = query;
+    if (title === 'Movie') {
+      // delete item from movie array
+    } else {
+      // delete item from series array
+    }
+  }
+};
 // exports
 module.exports = {
   getUsers,
@@ -85,4 +100,5 @@ module.exports = {
   notReal,
   notRealMeta,
   updateUsers,
+  deleteMovieFromUser,
 };
