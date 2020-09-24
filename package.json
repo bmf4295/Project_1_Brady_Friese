@@ -1,0 +1,32 @@
+{
+  "name": "project_1_brady_friese",
+  "version": "1.0.0",
+  "description": "IGME 430 Project 1",
+  "main": "./src/server.js",
+  "scripts": {
+    "start":"node ./src/server.js",
+    "pretest": "eslint ./src --fix",
+    "test": "echo \"Tests complete\" && exit 1",
+    "nodemon":"nodemon --watch ./src ./src/server.js",
+    "build":"babel ./client --out-file ./hosted/bundle.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/bmf4295/Project_1_Brady_Friese.git"
+  },
+  "author": "Brady Friese",
+  "license": "UNLICENSED",
+  "bugs": {
+    "url": "https://github.com/bmf4295/Project_1_Brady_Friese/issues"
+  },
+  "homepage": "https://github.com/bmf4295/Project_1_Brady_Friese#readme",
+  "devDependencies": {
+    "@babel/cli": "^7.11.6",
+    "@babel/core": "^7.11.6",
+    "@babel/preset-env": "^7.11.5",
+    "eslint": "^7.9.0",
+    "eslint-config-airbnb": "^18.2.0",
+    "eslint-plugin-import": "^2.22.0",
+    "nodemon": "^2.0.4"
+  }
+}
