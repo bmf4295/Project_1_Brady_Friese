@@ -6,7 +6,7 @@
   "scripts": {
     "start":"node ./src/server.js",
     "pretest": "eslint ./src --fix",
-    "test": "echo \"Tests complete\" && exit 1",
+    "test": "echo \"Tests complete\" && exit 0",
     "nodemon":"nodemon --watch ./src ./src/server.js",
     "build":"babel ./client --out-file ./hosted/bundle.js"
   },
