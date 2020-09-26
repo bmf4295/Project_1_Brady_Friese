@@ -19,7 +19,8 @@ const respondJSONMeta = (req, res, statusCode) => {
 
 const getUsers = (req, res, query) => {
   let responseJSON;
-  if (!query) {
+
+  if (!query.name) {
     responseJSON = {
       users,
     };
