@@ -34,6 +34,7 @@ const addPosterandPlot = (xhr, title, user, type) => {
 // function that calls the OMDB Api usuing the xmlhttprequest node module
 const sendOMDBRequest = (title, name, type) => {
   const xhr = new XMLHttpRequest();
+  // link to the OMDB API http://www.omdbapi.com/
   xhr.open('GET', `http://www.omdbapi.com/?t=${title}&type=${type}&apikey=31bf1020`);
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
   xhr.setRequestHeader('Accept', 'application/json');
