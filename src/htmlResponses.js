@@ -10,17 +10,19 @@ const respond = (req, res, content, type, statusCode) => {
   res.end();
 };
 
+// gets index page
 const getIndex = (req, res) => {
   respond(req, res, index, 'text/html', 200);
 };
-
+// gets the css for the index page
 const getIndexCSS = (req, res) => {
   respond(req, res, indexCSS, 'text/css', 200);
 };
 
-const getImage = (req, res) => {
+const getPlaceholderImage = (req, res) => {
   respond(req, res, placeHolderImage, 'image/png', 200);
 };
+
 module.exports = {
-  getIndex, getIndexCSS, getImage,
+  getIndex, getIndexCSS, getPlaceholderImage,
 };

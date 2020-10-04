@@ -10,7 +10,7 @@ const urlStruct = {
   GET: {
     '/': htmlHandler.getIndex,
     '/style.css': htmlHandler.getIndexCSS,
-    '/N-A_Placeholder.png': htmlHandler.getImage,
+    '/N-A_Placeholder.png': htmlHandler.getPlaceholderImage,
     '/getUsers': otherHandler.getUsers,
     '/notReal': otherHandler.notReal,
     notFound: otherHandler.notReal,
@@ -25,6 +25,7 @@ const urlStruct = {
     '/addTitle': otherHandler.updateUsers,
   },
 };
+// Handles post methods and getting body for the requests
 const handlePost = (req, res, parsedUrl) => {
   if (parsedUrl.pathname === '/addTitle') {
     const body = [];
@@ -46,6 +47,7 @@ const handlePost = (req, res, parsedUrl) => {
     });
   }
 };
+// Handles get or head request recieved
 const handleGet = (req, res, parsedUrl, method, queryParams) => {
   if (urlStruct[method][parsedUrl.pathname]) {
     urlStruct[method][parsedUrl.pathname](req, res, queryParams);
@@ -53,7 +55,7 @@ const handleGet = (req, res, parsedUrl, method, queryParams) => {
     urlStruct[method].notFound(req, res);
   }
 };
-
+// initial function that determines if method is post or get and passes it to the right function
 const onRequest = (req, res) => {
   const parsedUrl = url.parse(req.url);
   const params = query.parse(parsedUrl.query);

@@ -4,15 +4,16 @@
 <head>
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-
+  <link href="https://fonts.googleapis.com/css2?family=Roboto&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Limelight&display=swap" rel="stylesheet">
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
 
     const init = () => {
-      const refreshButton= document.querySelector('#refreshButton');
+      const refreshButton = document.querySelector('#refreshButton');
       const nameForm = document.querySelector('#nameForm');
 
-      const getOrHead = (e) => getOrHeadRequest(e,'get');
+      const getOrHead = (e) => getOrHeadRequest(e, 'get');
       const addUser = (e) => postRequest(e, nameForm);
 
       refreshButton.addEventListener('click', getOrHead);
@@ -25,15 +26,16 @@
       const footer = document.querySelector('#status')
       const name = document.querySelector('#nameField').value;
 
+      //sets the footer with the status result from the request
       switch (xhr.status) {
         case 200:
           footer.innerHTML = `<b>Success</b>`;
           break;
         case 201:
-          footer.innerHTML = '<b>Create</b>';
+          footer.innerHTML = '<b>Created User Watch List</b>';
           break;
         case 204:
-          footer.innerHTML = '<b>Updated (No Content)</b>';
+          footer.innerHTML = '<b>Updated Users Watch List</b>';
           break;
         case 400:
           footer.innerHTML = `<b>Bad Request</b>`;
@@ -45,27 +47,33 @@
           footer.innerHTML = `Error code not implemented by client.`;
           break;
       }
+      //if the request has a response do the following
       if (hasResponse && xhr.response) {
+        //clear content
         while (content.firstChild) {
-        content.removeChild(content.firstChild);
-      }
+          content.removeChild(content.firstChild);
+        }
+        //get the object, parse it, and check if there are users
         const obj = JSON.parse(xhr.response);
         if (obj.users) {
+
           const movies = obj.users[name].movie;
           const series = obj.users[name].series;
-
+          //creates movies list and add the header
           const list = document.createElement('section');
           list.className = "list";
 
           list.innerHTML += `<h3>Movies</h3>`
 
+          //add each movie in the array to the list section as a small widget
           movies.forEach((movie) => {
             const movieDiv = appendWatchlist(movie);
             list.appendChild(movieDiv);
           })
+          //add the list section element to content
           content.appendChild(list);
 
-
+          //do the same thing for series
           const showList = document.createElement('section');
           showList.className = "list";
           showList.innerHTML += `<h3>Series</h3>`
@@ -76,18 +84,19 @@
           content.appendChild(showList);
         }
       }
-      getOrHeadRequest(event,'get');
+      //update the list on screen
+      getOrHeadRequest(event, 'get');
     };
 
     const appendWatchlist = (element) => {
-
+      //create all necessary elements for widget
       const div = document.createElement('div');
       const textDiv = document.createElement('div');
       const titleParagraph = document.createElement('h3');
       const statusParagraph = document.createElement('p');
       const poster = document.createElement('img');
       const plot = document.createElement('i');
-
+      //set all values
       div.className = "watchListElement"
       textDiv.className = "watchListText"
       titleParagraph.innerHTML = `${element.title}`;
@@ -95,8 +104,8 @@
       plot.innerHTML = `${element.plot}`;
       poster.src = element.poster;
       poster.classList = "poster"
+      //append all things to each other in order
       div.appendChild(poster);
-
       textDiv.appendChild(titleParagraph);
       textDiv.appendChild(plot);
       textDiv.appendChild(statusParagraph);
@@ -104,6 +113,7 @@
       return div;
     };
 
+    //sends out get or head Requests
     const getOrHeadRequest = (e, method) => {
 
       const xhr = new XMLHttpRequest();
@@ -120,7 +130,7 @@
       event.preventDefault();
       return false;
     };
-
+    //sends out post Requests
     const postRequest = (e, nameForm) => {
       const action = nameForm.getAttribute('action');
       const method = nameForm.getAttribute('method');
@@ -152,35 +162,32 @@
   <section id="top">
     <div class="headingContiner">
       <div class="usernameField">
-        <label class="username"for="name">Username: </label>
+        <label class="username" for="name">Username: </label>
         <input class="username" id="nameField" type="text" value="User" name="name" />
       </div>
       <div class="heading">
-        <h2 class="title">The Watch List</h2>
+        <h1 class="title">The Watch List</h1>
       </div>
     </div>
     <div class="formFlex">
-    <form id="nameForm" action="/addTitle" method="post">
-      <label for="title">Title: </label>
-      <input class="nameFormItem" id="titleField" type="text" name="title" />
-      <label for="type">Type: </label>
-      <select class="nameFormItem" id='typeField'>
-        <option value='movie'>Movie</option>
-        <option value='series'>Series</option>
-      </select>
-      <label for="status">Status: </label>
-      <select class="nameFormItem"  id='statusField'>
-        <option value='Not Started'>Not started</option>
-        <option value='In Progress'>In Progress</option>
-        <option value='Completed'>Complete</option>
-      </select>
-      <input type="submit" value="Update Watch List" />
-      <button id="refreshButton">Refresh List</button>
-    </form>
-    
-  </div>
-      
- 
+      <form id="nameForm" action="/addTitle" method="post">
+        <label for="title">Title: </label>
+        <input class="nameFormItem" id="titleField" type="text" name="title" />
+        <label for="type">Type: </label>
+        <select class="nameFormItem" id='typeField'>
+          <option value='movie'>Movie</option>
+          <option value='series'>Series</option>
+        </select>
+        <label for="status">Status: </label>
+        <select class="nameFormItem" id='statusField'>
+          <option value='Not Started'>Not started</option>
+          <option value='In Progress'>In Progress</option>
+          <option value='Completed'>Complete</option>
+        </select>
+        <input type="submit" value="Update Watch List" />
+        <button id="refreshButton">Refresh List</button>
+      </form>
+    </div>
   </section>
   <section id="content">
   </section>
