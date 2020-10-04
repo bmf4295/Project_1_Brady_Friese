@@ -1,107 +1,157 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <title>Our simple HTTP server</title>
   <link rel="stylesheet" type="text/css" href="/style.css">
-  
+
   <script src="https://cdnjs.cloudflare.com/ajax/libs/babel-core/5.8.34/browser.min.js"></script>
   <script type="text/babel">
- const init = ()=>{
-  const userForm = document.querySelector('#userForm');
-  const nameForm = document.querySelector('#nameForm');
+    const init = () => {
+      const userForm = document.querySelector('#userForm');
+      const nameForm = document.querySelector('#nameForm');
 
-  const getOrHead = (e)=> getOrHeadRequest(e,userForm);
-  const addUser = (e)=> postRequest(e,nameForm);
+      const getOrHead = (e) => getOrHeadRequest(e, userForm);
+      const addUser = (e) => postRequest(e, nameForm);
 
-  userForm.addEventListener('submit', getOrHead);
-  nameForm.addEventListener('submit', addUser);
-  event.preventDefault();
-  }
-
-  const handleResponse = (xhr,hasResponse) =>{
-    const content = document.querySelector('#content');
-    
-    switch(xhr.status){
-      case 200:
-      content.innerHTML = `<b>Success</b>`;
-      break;
-      case 201:
-      content.innerHTML = '<b>Create</b>';
-      break;
-      case 204:
-      content.innerHTML = '<b>Updated (No Content)</b>';
-      break;
-      case 400:
-      content.innerHTML = `<b>Bad Request</b>`;
-      break;
-      case 404:
-      content.innerHTML = `<b>Resource Not Found</b>`;
-      break;
-      default: //any other status
-        content.innerHTML = `Error code not implemented by client.`;
-      break;
+      userForm.addEventListener('submit', getOrHead);
+      nameForm.addEventListener('submit', addUser);
+      event.preventDefault();
     }
-   if(hasResponse && xhr.response){
-    const obj = JSON.parse(xhr.response);
-    if(obj.message){
-      content.innerHTML += `<p>Message: ${obj.message}</p>`;
-    }else{
-      content.innerHTML += `<p>${JSON.stringify(obj.users)}</p>`;
+
+    const handleResponse = (xhr, hasResponse) => {
+      const content = document.querySelector('#content');
+      const name = document.querySelector('#nameField').value;
+
+      switch (xhr.status) {
+        case 200:
+          content.innerHTML = `<b>Success</b>`;
+          break;
+        case 201:
+          content.innerHTML = '<b>Create</b>';
+          break;
+        case 204:
+          content.innerHTML = '<b>Updated (No Content)</b>';
+          break;
+        case 400:
+          content.innerHTML = `<b>Bad Request</b>`;
+          break;
+        case 404:
+          content.innerHTML = `<b>Resource Not Found</b>`;
+          break;
+        default: //any other status
+          content.innerHTML = `Error code not implemented by client.`;
+          break;
+      }
+      if (hasResponse && xhr.response) {
+        const obj = JSON.parse(xhr.response);
+        if (obj.message) {
+          content.innerHTML += `<p>Message: ${obj.message}</p>`;
+
+        } else if (obj.users) {
+          content.innerHTML += `<hr>`;
+          const movies = obj.users[name].movie;
+          const series = obj.users[name].series;
+          if (movies.length > 0) {
+           const list = document.createElement('section');
+           list.id = "movieList";
+
+           list.innerHTML += `<h3>Movies</h3>`
+
+            movies.forEach((movie) => {
+            const movieDiv= appendWatchlist(movie);
+           list.appendChild(movieDiv);
+            })
+            content.appendChild(list);
+          }
+          if (series.length > 0) {
+            const showList = document.createElement('section');
+            showList.id = "seriesList";
+            showList.innerHTML += `<h3>Series</h3>`
+            series.forEach((show) => {
+              const seriesDiv= appendWatchlist(show)
+              showList.appendChild(seriesDiv);
+            })
+            content.appendChild(showList)
+          }
+
+
+        }
+
+      }
     }
-   }
-  }
+    const appendWatchlist = (element) => {
 
-  const getOrHeadRequest = (e,userForm)=>{
-    const url = userForm.querySelector('#urlField').value;
-    const method = userForm.querySelector('#methodSelect').value
-   
-    const xhr = new XMLHttpRequest();
+      const div = document.createElement('div');
+      const titleParagraph = document.createElement('p');
+      const statusParagraph = document.createElement('p');
+      const poster = document.createElement('img');
+      const plot = document.createElement('p');
 
-    xhr.open(method,url);
+      div.className = "watchListElement"
+      titleParagraph.innerHTML = `Title: ${element.title}`;
+      statusParagraph.innerHTML = `Status: ${element.status}`
+      plot.innerHTML = `Plot: ${element.plot}`;
+      poster.src= element.poster;
 
-    xhr.setRequestHeader ('Accept', 'application/json');
+      div.appendChild(poster);
+      div.appendChild(titleParagraph);
+      div.appendChild(plot);
+      div.appendChild(statusParagraph);
 
-    if(method === 'get') {
-      xhr.onload = () => handleResponse(xhr, true);
-    } else {
-      xhr.onload = () => handleResponse(xhr, false);
+      return div;
     }
+    const getOrHeadRequest = (e, userForm) => {
+      const url = userForm.querySelector('#urlField').value;
+      const method = userForm.querySelector('#methodSelect').value
+
+      const xhr = new XMLHttpRequest();
+
+      xhr.open(method, url);
+
+      xhr.setRequestHeader('Accept', 'application/json');
+
+      if (method === 'get') {
+        xhr.onload = () => handleResponse(xhr, true);
+      } else {
+        xhr.onload = () => handleResponse(xhr, false);
+      }
       xhr.send();
-    event.preventDefault();
+      event.preventDefault();
       return false;
-  }
+    }
 
-  const postRequest = (e,nameForm)=>{
-    const action = nameForm.getAttribute('action');
-    const method = nameForm.getAttribute('method');
+    const postRequest = (e, nameForm) => {
+      const action = nameForm.getAttribute('action');
+      const method = nameForm.getAttribute('method');
 
-    const name = nameForm.querySelector('#nameField');
-    const title = nameForm.querySelector('#titleField');
-    const type = nameForm.querySelector('#typeField');
-    const status = nameForm.querySelector('#statusField');
+      const name = nameForm.querySelector('#nameField');
+      const title = nameForm.querySelector('#titleField');
+      const type = nameForm.querySelector('#typeField');
+      const status = nameForm.querySelector('#statusField');
 
-    const xhr = new XMLHttpRequest();
-    
-    xhr.open(method,action);
+      const xhr = new XMLHttpRequest();
 
-    xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.open(method, action);
 
-    xhr.setRequestHeader ('Accept', 'application/json');
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
 
-    xhr.onload = () => handleResponse(xhr,true);
+      xhr.setRequestHeader('Accept', 'application/json');
 
-    const formData = `name=${name.value}&title=${title.value}&type=${type.value}&status=${status.value}`;
+      xhr.onload = () => handleResponse(xhr, true);
 
-    xhr.send(formData);
+      const formData = `name=${name.value}&title=${title.value}&type=${type.value}&status=${status.value}`;
 
-    e.preventDefault();
- 
-    return false;
-  };
+      xhr.send(formData);
 
-  window.onload= init;
+      e.preventDefault();
+
+      return false;
+    };
+    window.onload = init;
   </script>
 </head>
+
 <body>
   <section id="top">
     <h3>Project 1 Prototpe Brady Friese</h3>
@@ -109,11 +159,11 @@
       <label for="name">Name: </label>
       <input id="nameField" type="text" name="name" />
       <label for="title">Title: </label>
-      <input id="titleField" type="text" name="title"/>
+      <input id="titleField" type="text" name="title" />
       <label for="type">Type: </label>
-      <select id='typeField'> 
-        <option value='Movie'>Movie</option>
-        <option value='Series'>Series</option>
+      <select id='typeField'>
+        <option value='movie'>Movie</option>
+        <option value='series'>Series</option>
       </select>
       <label for="status">Status: </label>
       <select id='statusField'>
@@ -138,4 +188,5 @@
   <section id="content">
   </section>
 </body>
+
 </html>

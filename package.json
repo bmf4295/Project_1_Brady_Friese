@@ -4,11 +4,11 @@
   "description": "IGME 430 Project 1",
   "main": "./src/server.js",
   "scripts": {
-    "start":"node ./src/server.js",
+    "start": "node ./src/server.js",
     "pretest": "eslint ./src --fix",
     "test": "echo \"Tests complete\" && exit 0",
-    "nodemon":"nodemon --watch ./src ./src/server.js",
-    "build":"babel ./client --out-file ./hosted/bundle.js"
+    "nodemon": "nodemon --watch ./src ./src/server.js",
+    "build": "babel ./client --out-file ./hosted/bundle.js"
   },
   "repository": {
     "type": "git",
@@ -28,5 +28,8 @@
     "eslint-config-airbnb": "^18.2.0",
     "eslint-plugin-import": "^2.22.0",
     "nodemon": "^2.0.4"
+  },
+  "dependencies": {
+    "xmlhttprequest": "^1.8.0"
   }
 }

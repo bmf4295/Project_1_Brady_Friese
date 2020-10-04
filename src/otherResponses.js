@@ -1,3 +1,5 @@
+const { XMLHttpRequest } = require('xmlhttprequest');
+
 const users = {};
 
 const respondJSON = (req, res, content, statusCode) => {
@@ -17,13 +19,37 @@ const respondJSONMeta = (req, res, statusCode) => {
   res.end();
 };
 
+const addPosterandPlot = (xhr, title, user, type) => {
+  const omdbResponse = JSON.parse(xhr.responseText);
+  const obj = users[user][type].find((o) => o.title === title);
+  if (omdbResponse.Plot && omdbResponse.Poster) {
+    obj.plot = omdbResponse.Plot;
+    obj.poster = omdbResponse.Poster;
+  } else {
+    obj.plot = 'Plot Not found';
+    obj.poster = '/N-A_Placeholder.png';
+  }
+};
+const sendOMDBRequest = (title, name, type) => {
+  const xhr = new XMLHttpRequest();
+  xhr.open('GET', `http://www.omdbapi.com/?t=${title}&type=${type}&apikey=31bf1020`);
+
+  xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+
+  xhr.setRequestHeader('Accept', 'application/json');
+
+  xhr.onload = () => addPosterandPlot(xhr, title, name, type);
+
+  xhr.send();
+};
 const getUsers = (req, res, query) => {
   let responseJSON;
-
   if (!query.name) {
     responseJSON = {
       users,
     };
+  } else if (query.type) {
+    responseJSON = users[query.name][query.type];
   } else {
     responseJSON = users[query.name];
   }
@@ -57,21 +83,21 @@ const updateUsers = (req, res, body) => {
   if (users[body.name]) {
     responseCode = 204;
   } else {
-    users[body.name] = { Movies: [], Series: [] };
+    users[body.name] = { movie: [], series: [] };
   }
   const { title, status, type } = body;
-  if (type === 'Movie') {
-    users[body.name].Movies.push({
-      Title: title,
-      Status: status,
+  if (type === 'movie') {
+    users[body.name].movie.push({
+      title,
+      status,
     });
   } else {
-    users[body.name].Series.push({
-      Title: title,
-      Status: status,
+    users[body.name].series.push({
+      title,
+      status,
     });
   }
-
+  sendOMDBRequest(title, body.name, type);
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
     return respondJSON(req, res, responseJSON, responseCode);
@@ -79,6 +105,7 @@ const updateUsers = (req, res, body) => {
 
   return respondJSONMeta(req, res, responseCode);
 };
+
 // exports
 module.exports = {
   getUsers,
