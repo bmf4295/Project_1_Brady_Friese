@@ -17,98 +17,102 @@
       userForm.addEventListener('submit', getOrHead);
       nameForm.addEventListener('submit', addUser);
       event.preventDefault();
-    }
+    };
 
     const handleResponse = (xhr, hasResponse) => {
       const content = document.querySelector('#content');
+      const footer = document.querySelector('#status')
       const name = document.querySelector('#nameField').value;
 
       switch (xhr.status) {
         case 200:
-          content.innerHTML = `<b>Success</b>`;
+          footer.innerHTML = `<b>Success</b>`;
           break;
         case 201:
-          content.innerHTML = '<b>Create</b>';
+          footer.innerHTML = '<b>Create</b>';
           break;
         case 204:
-          content.innerHTML = '<b>Updated (No Content)</b>';
+          footer.innerHTML = '<b>Updated (No Content)</b>';
           break;
         case 400:
-          content.innerHTML = `<b>Bad Request</b>`;
+          footer.innerHTML = `<b>Bad Request</b>`;
           break;
         case 404:
-          content.innerHTML = `<b>Resource Not Found</b>`;
+          footer.innerHTML = `<b>Resource Not Found</b>`;
           break;
         default: //any other status
-          content.innerHTML = `Error code not implemented by client.`;
+          footer.innerHTML = `Error code not implemented by client.`;
           break;
       }
       if (hasResponse && xhr.response) {
+        while (content.firstChild) {
+        content.removeChild(content.firstChild);
+      }
         const obj = JSON.parse(xhr.response);
-        if (obj.message) {
-          content.innerHTML += `<p>Message: ${obj.message}</p>`;
-
-        } else if (obj.users) {
+        if (obj.users) {
           content.innerHTML += `<hr>`;
           const movies = obj.users[name].movie;
           const series = obj.users[name].series;
-          if (movies.length > 0) {
-           const list = document.createElement('section');
-           list.id = "movieList";
 
-           list.innerHTML += `<h3>Movies</h3>`
+          const list = document.createElement('section');
+          list.className = "list";
 
-            movies.forEach((movie) => {
-            const movieDiv= appendWatchlist(movie);
-           list.appendChild(movieDiv);
-            })
-            content.appendChild(list);
-          }
-          if (series.length > 0) {
-            const showList = document.createElement('section');
-            showList.id = "seriesList";
-            showList.innerHTML += `<h3>Series</h3>`
-            series.forEach((show) => {
-              const seriesDiv= appendWatchlist(show)
-              showList.appendChild(seriesDiv);
-            })
-            content.appendChild(showList)
-          }
+          list.innerHTML += `<h3>Movies</h3>`
+
+          movies.forEach((movie) => {
+            const movieDiv = appendWatchlist(movie);
+            list.appendChild(movieDiv);
+          })
+          content.appendChild(list);
+
+
+          const showList = document.createElement('section');
+          showList.className = "list";
+          showList.innerHTML += `<h3>Series</h3>`
+          series.forEach((show) => {
+            const seriesDiv = appendWatchlist(show)
+            showList.appendChild(seriesDiv);
+          })
+          content.appendChild(showList)
+
 
 
         }
 
       }
-    }
+    };
+
     const appendWatchlist = (element) => {
 
       const div = document.createElement('div');
-      const titleParagraph = document.createElement('p');
+      const textDiv = document.createElement('div');
+      const titleParagraph = document.createElement('h3');
       const statusParagraph = document.createElement('p');
       const poster = document.createElement('img');
-      const plot = document.createElement('p');
+      const plot = document.createElement('i');
 
       div.className = "watchListElement"
-      titleParagraph.innerHTML = `Title: ${element.title}`;
-      statusParagraph.innerHTML = `Status: ${element.status}`
-      plot.innerHTML = `Plot: ${element.plot}`;
-      poster.src= element.poster;
-
+      textDiv.className = "watchListText"
+      titleParagraph.innerHTML = `${element.title}`;
+      statusParagraph.innerHTML = `<b>Status</b>: ${element.status}`
+      plot.innerHTML = `${element.plot}`;
+      poster.src = element.poster;
+      poster.classList = "poster"
       div.appendChild(poster);
-      div.appendChild(titleParagraph);
-      div.appendChild(plot);
-      div.appendChild(statusParagraph);
 
+      textDiv.appendChild(titleParagraph);
+      textDiv.appendChild(plot);
+      textDiv.appendChild(statusParagraph);
+      div.appendChild(textDiv);
       return div;
-    }
+    };
+
     const getOrHeadRequest = (e, userForm) => {
       const url = userForm.querySelector('#urlField').value;
       const method = userForm.querySelector('#methodSelect').value
 
       const xhr = new XMLHttpRequest();
-
       xhr.open(method, url);
-
       xhr.setRequestHeader('Accept', 'application/json');
 
       if (method === 'get') {
@@ -116,48 +120,51 @@
       } else {
         xhr.onload = () => handleResponse(xhr, false);
       }
+
       xhr.send();
       event.preventDefault();
       return false;
-    }
+    };
 
     const postRequest = (e, nameForm) => {
       const action = nameForm.getAttribute('action');
       const method = nameForm.getAttribute('method');
 
-      const name = nameForm.querySelector('#nameField');
+      const name = document.querySelector('#nameField');
       const title = nameForm.querySelector('#titleField');
       const type = nameForm.querySelector('#typeField');
       const status = nameForm.querySelector('#statusField');
 
       const xhr = new XMLHttpRequest();
-
-      xhr.open(method, action);
-
-      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
-      xhr.setRequestHeader('Accept', 'application/json');
-
-      xhr.onload = () => handleResponse(xhr, true);
-
       const formData = `name=${name.value}&title=${title.value}&type=${type.value}&status=${status.value}`;
 
+      xhr.open(method, action);
+      xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
+      xhr.setRequestHeader('Accept', 'application/json');
+      xhr.onload = () => handleResponse(xhr, true);
       xhr.send(formData);
 
       e.preventDefault();
 
       return false;
     };
+
     window.onload = init;
   </script>
 </head>
 
 <body>
   <section id="top">
-    <h3>Project 1 Prototpe Brady Friese</h3>
+    <div class="headingContiner">
+      <div class="usernameField">
+        <label class="username"for="name">Username: </label>
+        <input class="username" id="nameField" type="text" name="name" />
+      </div>
+      <div class="heading">
+        <h3 class="title">The Watch List</h3>
+      </div>
+    </div>
     <form id="nameForm" action="/addTitle" method="post">
-      <label for="name">Name: </label>
-      <input id="nameField" type="text" name="name" />
       <label for="title">Title: </label>
       <input id="titleField" type="text" name="title" />
       <label for="type">Type: </label>
@@ -187,6 +194,7 @@
   </section>
   <section id="content">
   </section>
+  <footer id="status"></footer>
 </body>
 
 </html>

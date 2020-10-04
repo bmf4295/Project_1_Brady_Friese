@@ -33,13 +33,9 @@ const addPosterandPlot = (xhr, title, user, type) => {
 const sendOMDBRequest = (title, name, type) => {
   const xhr = new XMLHttpRequest();
   xhr.open('GET', `http://www.omdbapi.com/?t=${title}&type=${type}&apikey=31bf1020`);
-
   xhr.setRequestHeader('Content-type', 'application/x-www-form-urlencoded');
-
   xhr.setRequestHeader('Accept', 'application/json');
-
   xhr.onload = () => addPosterandPlot(xhr, title, name, type);
-
   xhr.send();
 };
 const getUsers = (req, res, query) => {
@@ -74,29 +70,31 @@ const updateUsers = (req, res, body) => {
     message: 'Name, Title, Type and Status are all required.',
   };
   let responseCode = 201;
-
-  if (!body.name || !body.title || !body.type || !body.status) {
+  const {
+    title, status, type, name,
+  } = body;
+  if (!name || !title || !type || !status) {
     responseJSON.id = 'missingParams';
     return respondJSON(req, res, responseJSON, 400);
   }
 
-  if (users[body.name]) {
+  if (users[name]) {
     responseCode = 204;
   } else {
-    users[body.name] = { movie: [], series: [] };
+    users[name] = { movie: [], series: [] };
   }
-  const { title, status, type } = body;
-  if (type === 'movie') {
-    users[body.name].movie.push({
-      title,
-      status,
-    });
+
+  const alreadyExistingItem = users[name][type].find((o) => o.title === title);
+
+  if (alreadyExistingItem) {
+    alreadyExistingItem.status = status;
   } else {
-    users[body.name].series.push({
+    users[name][type].push({
       title,
       status,
     });
   }
+
   sendOMDBRequest(title, body.name, type);
   if (responseCode === 201) {
     responseJSON.message = 'Created Successfully';
